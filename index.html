@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>∫ eˣ cos x dx — Interactive Explorer</title>
+<style>
+:root{--bg:#eaf0f4;--panel:#f7fafc;--ink:#14212b;--mute:#5a6b78;--grid:#cfdbe3;--pos:#0e8a8c;--neg:#b5179e;--curve:#14212b;--accent:#2b59c3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a22;--panel:#16252f;--ink:#e6eef3;--mute:#93a6b3;--grid:#27404f;--pos:#3cc4c6;--neg:#f06bd8;--curve:#e6eef3;--accent:#8aa9ff}}
+:root[data-theme="dark"]{--bg:#0f1a22;--panel:#16252f;--ink:#e6eef3;--mute:#93a6b3;--grid:#27404f;--pos:#3cc4c6;--neg:#f06bd8;--curve:#e6eef3;--accent:#8aa9ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:20px 16px 48px}
+h1{font:600 clamp(26px,5vw,40px)/1.15 "Iowan Old Style",Georgia,"Times New Roman",serif;margin:8px 0 6px}
+h2{font:600 22px/1.25 "Iowan Old Style",Georgia,serif;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:62ch}
+.m{font-family:"Iowan Old Style",Georgia,"Times New Roman",serif;font-style:italic}
+.panel{background:var(--panel);border:1px solid var(--grid);border-radius:10px;padding:12px;margin-bottom:14px}
+.cap{font-size:14px;color:var(--mute);margin:0 0 4px}
+svg{width:100%;height:auto;display:block}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 22px;align-items:end}
+label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button{font:inherit;font-size:14px;padding:7px 12px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+button:hover{background:var(--accent);color:var(--panel)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.read{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.r{border-left:4px solid var(--grid);padding:2px 10px}
+.r b{display:block;font:600 20px/1.3 "Iowan Old Style",Georgia,serif;font-variant-numeric:tabular-nums}
+.r span{font-size:13px;color:var(--mute)}
+.r.p{border-color:var(--pos)}.r.n{border-color:var(--neg)}.r.t{border-color:var(--accent)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.eq{font:italic 18px/1.7 "Iowan Old Style",Georgia,serif;background:var(--bg);border-radius:6px;padding:8px 12px;margin:8px 0;overflow-x:auto;white-space:nowrap}
+.I{color:var(--neg);font-weight:700}
+.step{display:none}.step.on{display:block}
+p{max-width:68ch}
+</style>
+</head>
+<body>
+<main>
+<h1>∫ <span class="m">eˣ</span> cos <span class="m">x dx</span></h1>
+<p class="sub">Slide <span class="m">x</span> to sweep out area under the curve. The change in the antiderivative <span class="m">F</span> below always equals the signed area above.</p>
+
+<div class="panel">
+  <p class="cap">Integrand <span class="m">f(x) = eˣ cos x</span> — <span class="sw" style="background:var(--pos)"></span>area above the axis, <span class="sw" style="background:var(--neg)"></span>area below</p>
+  <svg id="p1" viewBox="0 0 800 300" role="img" aria-label="Graph of f(x)=e^x cos x with shaded area"></svg>
+</div>
+<div class="panel">
+  <p class="cap">Antiderivative <span class="m">F(x) = ½ eˣ (sin x + cos x)</span> — the vertical bar is <span class="m">F(x) − F(a)</span>, the same signed area</p>
+  <svg id="p2" viewBox="0 0 800 260" role="img" aria-label="Graph of the antiderivative F(x)"></svg>
+</div>
+
+<div class="panel">
+  <div class="ctl">
+    <div><label for="sx"><span>Upper limit <span class="m">x</span></span><output id="ox"></output></label><input id="sx" type="range" min="-3" max="5" step="0.01" value="2.5"></div>
+    <div><label for="sa"><span>Lower limit <span class="m">a</span></span><output id="oa"></output></label><input id="sa" type="range" min="-3" max="5" step="0.01" value="0"></div>
+  </div>
+  <div class="btns">
+    <button id="play">Play sweep</button>
+    <button id="zero">Jump x to next zero of f</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div class="read" aria-live="polite">
+    <div class="r"><b id="rf"></b><span>f(x)</span></div>
+    <div class="r"><b id="rF"></b><span>F(x)</span></div>
+    <div class="r t"><b id="rA"></b><span>F(x) − F(a) = signed area</span></div>
+    <div class="r p"><b id="rP"></b><span>area above axis</span></div>
+    <div class="r n"><b id="rN"></b><span>area below axis</span></div>
+    <div class="r"><b id="rC"></b><span>numeric check (above − below)</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Why integration by parts goes in a circle</h2>
+  <p>Let <span class="I">I</span> = ∫ <span class="m">eˣ cos x dx</span>. Step through the two rounds of parts.</p>
+  <div class="step on"><b>Round 1.</b> Take <span class="m">u = cos x</span>, <span class="m">dv = eˣ dx</span>:
+    <div class="eq"><span class="I">I</span> = eˣ cos x + ∫ eˣ sin x dx</div></div>
+  <div class="step"><b>Round 2.</b> Take <span class="m">u = sin x</span>, <span class="m">dv = eˣ dx</span>. The new integral is not simpler, and its cos x comes back:
+    <div class="eq">∫ eˣ sin x dx = eˣ sin x − ∫ eˣ cos x dx = eˣ sin x − <span class="I">I</span></div></div>
+  <div class="step"><b>The loop closes.</b> Substitute round 2 into round 1, and I appears on both sides:
+    <div class="eq"><span class="I">I</span> = eˣ cos x + eˣ sin x − <span class="I">I</span> &nbsp;⟹&nbsp; 2<span class="I">I</span> = eˣ(sin x + cos x)</div>
+    <div class="eq"><span class="I">I</span> = ½ eˣ (sin x + cos x) + C</div>
+    <p>Two facts cause the cycle. Differentiating cos x twice gives −cos x, so the trig factor returns with a minus sign. Integrating eˣ never changes it. After two rounds you have the original integral times −1, so you solve for it like an ordinary equation instead of integrating further. Parts never “finishes”, which is why the algebra step is needed.</p></div>
+  <div class="btns"><button id="nx">Next step</button><button id="rs">Start over</button></div>
+</div>
+</main>
+<script>
+const f=x=>Math.exp(x)*Math.cos(x), F=x=>.5*Math.exp(x)*(Math.sin(x)+Math.cos(x));
+const X0=-3,X1=5, $=id=>document.getElementById(id), NS="http://www.w3.org/2000/svg";
+const L=52,R=14,T=14,B=26;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function frame(W,H,y0,y1,yt){
+  const sx=x=>L+(x-X0)/(X1-X0)*(W-L-R), sy=y=>T+(y1-y)/(y1-y0)*(H-T-B);
+  let s='';
+  for(let x=X0;x<=X1;x++)s+=`<line x1="${sx(x)}" x2="${sx(x)}" y1="${T}" y2="${H-B}" stroke="var(--grid)" stroke-width="${x==0?1.6:.6}"/><text x="${sx(x)}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--mute)">${x}</text>`;
+  yt.forEach(y=>s+=`<line x1="${L}" x2="${W-R}" y1="${sy(y)}" y2="${sy(y)}" stroke="var(--grid)" stroke-width="${y==0?1.6:.6}"/><text x="${L-6}" y="${sy(y)+4}" text-anchor="end" font-size="12" fill="var(--mute)">${y}</text>`);
+  return {sx,sy,s};
+}
+function curve(fn,sx,sy,a,b,n=400){let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+sx(x).toFixed(1)+' '+sy(fn(x)).toFixed(1)}return d}
+function shade(sx,sy,lo,hi,sign,col){
+  const n=300;let d=`M${sx(lo)} ${sy(0)}`;
+  for(let i=0;i<=n;i++){const x=lo+(hi-lo)*i/n,v=sign>0?Math.max(f(x),0):Math.min(f(x),0);d+=`L${sx(x).toFixed(1)} ${sy(v).toFixed(1)}`}
+  return `<path d="${d}L${sx(hi)} ${sy(0)}Z" fill="${col}" fill-opacity=".45"/>`;
+}
+function area(lo,hi){let p=0,n=0;const N=3000,h=(hi-lo)/N;for(let i=0;i<N;i++){const v=f(lo+(i+.5)*h)*h;v>0?p+=v:n+=v}return{p,n:-n}}
+const fmt=v=>(Math.abs(v)<1e-9?0:v).toFixed(3);
+function draw(){
+  const x=+$('sx').value,a=+$('sa').value,lo=Math.min(a,x),hi=Math.max(a,x);
+  $('ox').textContent=x.toFixed(2);$('oa').textContent=a.toFixed(2);
+  // panel 1
+  let W=800,H=300,g=frame(W,H,-50,50,[-50,-25,0,25,50]),{sx,sy}=g,s=g.s;
+  s+=shade(sx,sy,lo,hi,1,'var(--pos)')+shade(sx,sy,lo,hi,-1,'var(--neg)');
+  s+=`<path d="${curve(f,sx,sy,X0,X1)}" fill="none" stroke="var(--curve)" stroke-width="2.2"/>`;
+  s+=`<line x1="${sx(a)}" x2="${sx(a)}" y1="${T}" y2="${H-B}" stroke="var(--mute)" stroke-dasharray="4 4"/><text x="${sx(a)+4}" y="${T+10}" font-size="12" fill="var(--mute)">a</text>`;
+  s+=`<line x1="${sx(x)}" x2="${sx(x)}" y1="${T}" y2="${H-B}" stroke="var(--accent)" stroke-width="1.6"/><circle cx="${sx(x)}" cy="${sy(f(x))}" r="6" fill="var(--accent)"/>`;
+  $('p1').innerHTML=s;
+  // panel 2
+  H=260;const Fy=[-60,-40,-20,0];g=frame(W,H,-65,10,Fy);({sx,sy}=g);s=g.s;
+  s+=`<path d="${curve(F,sx,sy,X0,X1)}" fill="none" stroke="var(--curve)" stroke-width="2.2"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${sy(F(a))}" y2="${sy(F(a))}" stroke="var(--mute)" stroke-dasharray="4 4"/>`;
+  s+=`<line x1="${sx(x)}" x2="${sx(x)}" y1="${sy(F(a))}" y2="${sy(F(x))}" stroke="${F(x)>=F(a)?'var(--pos)':'var(--neg)'}" stroke-width="7" stroke-linecap="round" opacity=".8"/>`;
+  s+=`<circle cx="${sx(a)}" cy="${sy(F(a))}" r="5" fill="var(--panel)" stroke="var(--mute)" stroke-width="2"/><circle cx="${sx(x)}" cy="${sy(F(x))}" r="6" fill="var(--accent)"/>`;
+  $('p2').innerHTML=s;
+  // readouts
+  const ar=area(lo,hi),dir=x>=a?1:-1;
+  $('rf').textContent=fmt(f(x));$('rF').textContent=fmt(F(x));$('rA').textContent=fmt(F(x)-F(a));
+  $('rP').textContent=fmt(ar.p);$('rN').textContent=fmt(ar.n);$('rC').textContent=fmt(dir*(ar.p-ar.n));
+}
+const sx_=$('sx'),sa_=$('sa');
+sx_.oninput=sa_.oninput=draw;
+let raf=0;
+function stop(){cancelAnimationFrame(raf);raf=0;$('play').textContent='Play sweep'}
+$('play').onclick=()=>{
+  if(raf){stop();return}
+  $('play').textContent='Pause';
+  const tick=()=>{let v=+sx_.value+.015;if(v>X1)v=+sa_.value;sx_.value=v;draw();raf=requestAnimationFrame(tick)};
+  raf=requestAnimationFrame(tick);
+};
+$('zero').onclick=()=>{stop();let k=Math.floor((+sx_.value-Math.PI/2)/Math.PI)+1,z=Math.PI/2+k*Math.PI;if(z>X1)z=Math.PI/2+Math.ceil((X0-Math.PI/2)/Math.PI)*Math.PI;sx_.value=z;draw()};
+$('reset').onclick=()=>{stop();sx_.value=2.5;sa_.value=0;draw()};
+let st=0;const steps=[...document.querySelectorAll('.step')];
+$('nx').onclick=()=>{if(st<steps.length-1)steps[++st].classList.add('on')};
+$('rs').onclick=()=>{st=0;steps.forEach((e,i)=>e.classList.toggle('on',i==0))};
+draw();
+</script>
+</body>
+</html>
